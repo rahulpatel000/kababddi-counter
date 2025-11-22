@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kabaddi Point Counter</title>
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background:#f5f5f5;
+        margin:0; padding:20px;
+    }
+    h2{text-align:center;}
+    .container{
+        max-width:700px;
+        margin:auto;
+        background:white;
+        padding:20px;
+        border-radius:10px;
+        box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+    .scoreboard{
+        display:flex;
+        justify-content:space-between;
+        font-size:22px;
+        margin-bottom:20px;
+    }
+    button{
+        padding:10px 15px;
+        margin:5px;
+        border:none;
+        border-radius:6px;
+        background:#007bff;
+        color:white;
+        cursor:pointer;
+    }
+    button:hover{background:#0056b3;}
+    .timer-box{
+        text-align:center;
+        margin:20px 0;
+        font-size:25px;
+        background:#222;
+        color:#fff;
+        padding:10px;
+        border-radius:10px;
+    }
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:15px;
+    }
+    th,td{
+        padding:8px;
+        border:1px solid #ccc;
+        text-align:center;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kabaddi Point Counter</h2>
+
+    <!-- TIMER -->
+    <div class="timer-box">
+        Match Time: <span id="timer">00:00</span>
+    </div>
+
+    <div style="text-align:center;">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="scoreboard">
+        <h3>Team A: <span id="scoreA">0</span></h3>
+        <h3>Team B: <span id="scoreB">0</span></h3>
+    </div>
+
+    <!-- Buttons -->
+    <h3>Team A Controls</h3>
+    <button onclick="addPoint('A', 1)">Raid (+1)</button>
+    <button onclick="addPoint('A', 2)">Super Raid (+2)</button>
+    <button onclick="addPoint('A', 1)">Bonus (+1)</button>
+    <button onclick="addPoint('A', 3)">Tackle (+3)</button>
+    <button onclick="addPoint('A', 2)">All Out (+2)</button>
+
+    <h3>Team B Controls</h3>
+    <button onclick="addPoint('B', 1)">Raid (+1)</button>
+    <button onclick="addPoint('B', 2)">Super Raid (+2)</button>
+    <button onclick="addPoint('B', 1)">Bonus (+1)</button>
+    <button onclick="addPoint('B', 3)">Tackle (+3)</button>
+    <button onclick="addPoint('B', 2)">All Out (+2)</button>
+
+    <br><br>
+    <button style="background:red" onclick="resetScore()">Reset Match</button>
+
+    <hr>
+
+    <!-- Player Details -->
+    <h3>Add Player</h3>
+    <input type="text" id="playerName" placeholder="Player Name">
+    <input type="text" id="playerRole" placeholder="Role (Raider/Defender)">
+    <input type="number" id="playerJersey" placeholder="Jersey No.">
+    <button onclick="addPlayer()">Add Player</button>
+
+    <h3>Player List</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Jersey</th>
+            </tr>
+        </thead>
+        <tbody id="playerTable"></tbody>
+    </table>
+
+</div>
+
+<script>
+/* SCORE SYSTEM */
+let scoreA = 0;
+let scoreB = 0;
+
+function addPoint(team, points){
+    if(team === 'A'){
+        scoreA += points;
+        document.getElementById("scoreA").innerText = scoreA;
+    } else {
+        scoreB += points;
+        document.getElementById("scoreB").innerText = scoreB;
+    }
+}
+
+function resetScore(){
+    scoreA = 0;
+    scoreB = 0;
+    document.getElementById("scoreA").innerText = 0;
+    document.getElementById("scoreB").innerText = 0;
+}
+
+/* PLAYER ADD */
+function addPlayer(){
+    let name = document.getElementById("playerName").value;
+    let role = document.getElementById("playerRole").value;
+    let jersey = document.getElementById("playerJersey").value;
+
+    if(name === "" || role === "" || jersey === ""){
+        alert("Please fill all player details!");
+        return;
+    }
+
+    let table = document.getElementById("playerTable");
+    let row = `<tr><td>${name}</td><td>${role}</td><td>${jersey}</td></tr>`;
+    table.innerHTML += row;
+
+    document.getElementById("playerName").value = "";
+    document.getElementById("playerRole").value = "";
+    document.getElementById("playerJersey").value = "";
+}
+
+/* MATCH TIMER */
+let seconds = 0;
+let timerInterval;
+
+function updateTimer(){
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+
+    document.getElementById("timer").innerText =
+        (mins < 10 ? "0" + mins : mins) + ":" +
+        (secs < 10 ? "0" + secs : secs);
+}
+
+function startTimer(){
+    if(timerInterval) return; 
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateTimer();
+    }, 1000);
+}
+
+function pauseTimer(){
+    clearInterval(timerInterval);
+    timerInterval = null;
+}
+
+function resetTimer(){
+    pauseTimer();
+    seconds = 0;
+    updateTimer();
+}
+</script>
+
+</body>
+</html>

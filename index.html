@@ -1,137 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kabaddi Scoreboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-        h2 { text-align: center; }
-        .scoreboard, .timers { display: flex; justify-content: space-between; margin: 20px 0; }
-        .team { width: 45%; text-align: center; background: #222; color: white; padding: 20px; border-radius: 10px; }
-        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
-        .raid-timer, .match-timer { text-align: center; margin-top: 20px; padding: 10px; background: #ddd; border-radius: 8px; font-size: 20px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kabaddi Counter Updated</title>
+<style>
+ body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
+ .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+ h2 { text-align: center; }
+ .team-box { display: flex; justify-content: space-between; }
+ .team { width: 45%; padding: 15px; background: #eef; border-radius: 10px; }
+ button { padding: 10px 15px; margin: 5px; }
+ .alive { color: green; font-weight: bold; }
+ .out { color: red; font-weight: bold; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Kabaddi Match Scoreboard</h2>
+<div class="container">
 
-        <!-- Match Time Setup -->
-        <div>
-            <label>Set Match Time (minutes): </label>
-            <input type="number" id="setTime" min="1" value="20"> 
-            <button onclick="applyMatchTime()">Apply</button>
-        </div>
+<h2>🏆 PKL Style Kabaddi Scorecard</h2>
 
-        <!-- Match Timer -->
-        <div class="match-timer">
-            Match Time: <span id="matchTime">20:00</span><br>
-            <button onclick="startMatchTimer()">Start</button>
-            <button onclick="pauseMatchTimer()">Pause</button>
-            <button onclick="resetMatchTimer()">Reset</button>
-            <button onclick="halfTime()">Half Time</button>
-        </div>
+<!-- MATCH TIMER -->
+<div>
+  <h3>Match Time: <span id="matchTime">20:00</span></h3>
+  <button onclick="startMatch()">Start</button>
+  <button onclick="pauseMatch()">Pause</button>
+  <button onclick="resetMatch()">Reset</button>
+</div>
+<hr>
 
-        <!-- Scoreboard -->
-        <div class="scoreboard">
-            <div class="team">
-                <h3>Team A</h3>
-                <h1 id="scoreA">0</h1>
-                <button onclick="addPoint('A',1)">Raid +1</button>
-                <button onclick="addPoint('A',1)">Tackle +1</button>
-            </div>
+<!-- RAID TIMER -->
+<div>
+  <h3>Raid Time: <span id="raidTime">30</span> sec</h3>
+  <button onclick="startRaid()">Start Raid</button>
+  <button onclick="resetRaid()">Reset Raid</button>
+</div>
+<hr>
 
-            <div class="team">
-                <h3>Team B</h3>
-                <h1 id="scoreB">0</h1>
-                <button onclick="addPoint('B',1)">Raid +1</button>
-                <button onclick="addPoint('B',1)">Tackle +1</button>
-            </div>
-        </div>
+<!-- PKL STYLE SCORECARD -->
+<div style="display:flex; justify-content:space-between; align-items:center; padding:20px; background:#111; color:#fff; border-radius:10px; margin-bottom:20px;">
+  <div style="text-align:center; width:45%;">
+    <input id="teamBName" value="TEAM B" onchange="updateNames()" style="font-size:22px; text-align:center; width:80%; padding:5px; border-radius:6px;" />
+    <h1 id="scoreB" style="font-size:60px; margin:0;">0</h1>
+    <p>Alive: <span id="aliveA">7</span> | Out: <span id="outA">0</span></p>
+  </div>
 
-        <!-- Raid Timer -->
-        <div class="raid-timer">
-            Raid Timer: <span id="raidTime">30</span>s<br>
-            <button onclick="startRaid()">Start Raid</button>
-            <button onclick="resetRaid()">Reset Raid</button>
-        </div>
+  <div style="text-align:center; width:10%; font-size:24px;">VS</div>
 
-    </div>
+  <div style="text-align:center; width:45%;">
+    <h2>TEAM B</h2>
+    <h1 id="scoreB" style="font-size:60px; margin:0;">0</h1>
+    <p>Alive: <span id="aliveB">7</span> | Out: <span id="outB">0</span></p>
+  </div>
+</div>
+
+<!-- PLAYER BLOCKS -->
+<div class="team-box">
+  <div class="team">
+    <h3>Team A Players</h3>
+    <div id="playersA"></div>
+    <button onclick="addPoint('A')">+1 Point</button>
+  </div>
+
+  <div class="team">
+    <h3>Team B Players</h3>
+    <div id="playersB"></div>
+    <button onclick="addPoint('B')">+1 Point</button>
+  </div>
+</div>
+
+    <button onclick="addPoint('A')">+1 Point</button>
+  </div>
+
+  <!-- TEAM B -->
+  <div class="team">
+    <h3>Team B – Score: <span id="scoreB">0</span></h3>
+    <h4>Alive: <span id="aliveB">7</span> / Out: <span id="outB">0</span></h4>
+
+    <div id="playersB"></div>
+
+    <button onclick="addPoint('B')">+1 Point</button>
+  </div>
+
+</div>
+
+</div>
 
 <script>
-// ----------------------- SCORE SYSTEM ------------------------
-function addPoint(team, points) {
-    let scoreElement = document.getElementById(team === 'A' ? 'scoreA' : 'scoreB');
-    let current = parseInt(scoreElement.textContent);
-    scoreElement.textContent = current + points;
+// PLAYERS DATA
+const teamA = Array(7).fill().map((_, i) => ({ name: `A Player ${i+1}`, alive: true }));
+const teamB = Array(7).fill().map((_, i) => ({ name: `B Player ${i+1}`, alive: true }));
+
+function renderPlayers() {
+  const A = document.getElementById("playersA");
+  const B = document.getElementById("playersB");
+
+  A.innerHTML = "";
+  B.innerHTML = "";
+
+  teamA.forEach((p, i) => {
+    A.innerHTML += `<p>${p.name} — <span class="${p.alive?'alive':'out'}">${p.alive?'Alive':'Out'}</span>
+    <button onclick="toggleStatus('A', ${i})">Toggle</button></p>`;
+  });
+
+  teamB.forEach((p, i) => {
+    B.innerHTML += `<p>${p.name} — <span class="${p.alive?'alive':'out'}">${p.alive?'Alive':'Out'}</span>
+    <button onclick="toggleStatus('B', ${i})">Toggle</button></p>`;
+  });
+
+  updateCounts();
 }
 
-// --------------------- MATCH TIMER --------------------------
-let matchSeconds = 20 * 60;
-let matchInterval;
-
-function applyMatchTime(){
-    let min = parseInt(document.getElementById('setTime').value);
-    matchSeconds = min * 60;
-    updateMatchTimer();
+function toggleStatus(team, index) {
+  if(team === 'A') teamA[index].alive = !teamA[index].alive;
+  else teamB[index].alive = !teamB[index].alive;
+  renderPlayers();
 }
 
-function updateMatchTimer(){
-    let m = Math.floor(matchSeconds / 60);
-    let s = matchSeconds % 60;
-    document.getElementById('matchTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+function updateCounts() {
+  const aliveA = teamA.filter(p => p.alive).length;
+  const aliveB = teamB.filter(p => p.alive).length;
+
+  document.getElementById("aliveA").innerText = aliveA;
+  document.getElementById("aliveB").innerText = aliveB;
+
+  document.getElementById("outA").innerText = 7 - aliveA;
+  document.getElementById("outB").innerText = 7 - aliveB;
 }
 
-function startMatchTimer(){
-    if(matchInterval) return;
-    matchInterval = setInterval(()=>{
-        if(matchSeconds > 0){ matchSeconds--; updateMatchTimer(); }
-    },1000);
+// SCORE
+let scoreA = 0, scoreB = 0;
+function addPoint(team) {
+  if(team === 'A') scoreA++;
+  else scoreB++;
+  document.getElementById("scoreA").innerText = scoreA;
+  document.getElementById("scoreB").innerText = scoreB;
 }
 
-function pauseMatchTimer(){
-    clearInterval(matchInterval);
-    matchInterval = null;
-}
+// MATCH TIMER
+let matchSeconds = 20*60; let matchInt;
+function startMatch(){ matchInt=setInterval(()=>{ matchSeconds--; updateMatch(); },1000); }
+function pauseMatch(){ clearInterval(matchInt); }
+function resetMatch(){ matchSeconds=20*60; updateMatch(); }
+function updateMatch(){ let m=Math.floor(matchSeconds/60), s=matchSeconds%60;
+ document.getElementById('matchTime').innerText = `${m}:${s<10?'0'+s:s}`; }
 
-function resetMatchTimer(){
-    pauseMatchTimer();
-    applyMatchTime();
-}
-
-function halfTime(){
-    alert("Half Time Reached!");
-    pauseMatchTimer();
-}
-
-// ----------------------- RAID TIMER --------------------------
-let raidSeconds = 30;
-let raidInterval;
-
-function updateRaid(){
-    document.getElementById('raidTime').textContent = raidSeconds;
-}
+// RAID TIMER WITH AUDIO COUNTDOWN
+let raid = 30;
+let raidInt;
+const countdownAudio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
 function startRaid(){
-    resetRaid();
-    raidInterval = setInterval(()=>{
-        if(raidSeconds > 0){
-            raidSeconds--;
-            updateRaid();
-        } else {
-            clearInterval(raidInterval);
-            alert("Raid Time Over!");
-        }
-    },1000);
+  raid = 30;
+  clearInterval(raidInt);
+  raidInt = setInterval(()=>{
+    raid--;
+    document.getElementById('raidTime').innerText = raid;
+
+    // Play sound only for last 10 seconds
+    if(raid <= 10 && raid > 0){ countdownAudio.play(); }
+
+    if(raid <= 0){ clearInterval(raidInt); }
+  },1000);
 }
 
 function resetRaid(){
-    clearInterval(raidInterval);
-    raidSeconds = 30;
-    updateRaid();
+  clearInterval(raidInt);
+  raid = 30;
+  document.getElementById('raidTime').innerText = raid;
 }
+
+renderPlayers();
+function updateNames(){
+  document.querySelector('#teamAName').value = document.querySelector('#teamAName').value.toUpperCase();
+  document.querySelector('#teamBName').value = document.querySelector('#teamBName').value.toUpperCase();
+}
+
 </script>
+
 </body>
 </html>

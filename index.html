@@ -1,287 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PKL Kabaddi Counter</title>
-
+<meta charset="UTF-8">
+<title>Kabaddi Counter</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #121212;
-  color: white;
-  padding: 20px;
-}
-
-.container {
-  max-width: 1000px;
-  margin: auto;
-  background: #1e1e1e;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px #000;
-}
-
-input {
-  width: 90%;
-  padding: 8px;
-  border-radius: 6px;
-  border: none;
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-.btn {
-  background: #ff9800;
-  color: black;
-  font-weight: bold;
-}
-
-.teamCard {
-  display: flex;
-  justify-content: space-between;
-  background: #000;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.teamBlock {
-  width: 45%;
-  text-align: center;
-}
-
-.score {
-  font-size: 60px;
-  font-weight: bold;
-  color: #00eaff;
-}
-
-.alive { color: #00ff00; font-weight: bold; }
-.out { color: #ff4444; font-weight: bold; }
-
-.player {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
-}
+body { font-family: Arial; text-align:center; }
+.container { max-width:900px; margin:auto; }
+.team-box { border:1px solid #333; padding:15px; border-radius:8px; margin:10px; }
+input { padding:5px; font-size:16px; width:180px; text-align:center; }
+.timer { font-size:40px; margin:20px 0; font-weight:bold; }
+.btn { padding:10px 20px; margin:5px; font-size:18px; cursor:pointer; }
+.player-list { text-align:left; margin-left:30%; }
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<h2 style="text-align:center; color:#00eaff;">🏆 PKL Kabaddi Score System</h2>
+<h2>Kabaddi Match Counter</h2>
 
-<!-- MATCH TIMER -->
-<h3>Match Time:
-  <input id="matchInput" type="number" value="20" style="width:70px;"> Minutes
-</h3>
+<!-- TEAM NAME INPUT -->
+Team A: <input id="teamAName" value="Team A"><br><br>
+Team B: <input id="teamBName" value="Team B"><br><br>
 
-<h2 id="matchTime">20:00</h2>
+<!-- MATCH TIME -->
+Set Match Time (minutes):
+<input type="number" id="matchTimeInput" value="20"><br><br>
 
-<button class="btn" onclick="startMatch()">Start</button>
-<button class="btn" onclick="pauseMatch()">Pause</button>
-<button class="btn" onclick="resetMatch()">Reset</button>
+<button class="btn" onclick="startMatch()">Start Match</button>
 
-<hr style="border-color:#444">
+<h2>Main Match Timer</h2>
+<div id="matchTimer" class="timer">00:00</div>
 
-<!-- RAID TIMER -->
-<h3>Raid Time</h3>
-<h2 id="raidTime">30</h2>
+<hr>
 
+<h2>Raid Timer (Always 30 sec)</h2>
+<div id="raidTimer" class="timer">30</div>
 <button class="btn" onclick="startRaid()">Start Raid</button>
-<button class="btn" onclick="resetRaid()">Reset Raid</button>
+<button class="btn" onclick="pauseRaid()">Pause</button>
+<button class="btn" onclick="resumeRaid()">Resume</button>
 
-<hr style="border-color:#444">
+<h3>Last 10 sec voice: PKL-style loud countdown added ✔</h3>
 
-<!-- MAIN SCOREBOARD -->
-<div class="teamCard">
+<hr>
 
-  <!-- TEAM A -->
-  <div class="teamBlock">
-    <input id="teamAName" value="TEAM A" onchange="updateNames()">
-    <div class="score" id="scoreA">0</div>
-    <p>Alive: <span id="aliveA">7</span> | Out: <span id="outA">0</span></p>
-  </div>
+<div class="team-box">
+<h2 id="nameA">Team A</h2>
+<h3>Score: <span id="scoreA">0</span></h3>
+<button class="btn" onclick="addPointA()">+1 Point</button>
 
-  <div style="font-size:40px; margin-top:40px;">VS</div>
-
-  <!-- TEAM B -->
-  <div class="teamBlock">
-    <input id="teamBName" value="TEAM B" onchange="updateNames()">
-    <div class="score" id="scoreB">0</div>
-    <p>Alive: <span id="aliveB">7</span> | Out: <span id="outB">0</span></p>
-  </div>
-
+<h3>Players Alive: <span id="aliveA">7</span> / 7</h3>
+<div class="player-list">
+Player Names:<br>
+<input id="a1" value="A1"><br>
+<input id="a2" value="A2"><br>
+<input id="a3" value="A3"><br>
+<input id="a4" value="A4"><br>
+<input id="a5" value="A5"><br>
+<input id="a6" value="A6"><br>
+<input id="a7" value="A7"><br>
 </div>
 
-<!-- PLAYERS LIST -->
-<div style="display:flex; justify-content:space-between;">
+<button class="btn" onclick="outPlayerA()">OUT (-1 alive)</button>
+<button class="btn" onclick="reviveA()">REVIVE (+1 alive)</button>
+</div>
 
-  <!-- TEAM A PLAYERS -->
-  <div style="width:48%;">
-    <h3>Team A Players</h3>
-    <div id="playersA"></div>
-    <button class="btn" onclick="addPoint('A')">+1 Point</button>
-  </div>
+<div class="team-box">
+<h2 id="nameB">Team B</h2>
+<h3>Score: <span id="scoreB">0</span></h3>
+<button class="btn" onclick="addPointB()">+1 Point</button>
 
-  <!-- TEAM B PLAYERS -->
-  <div style="width:48%;">
-    <h3>Team B Players</h3>
-    <div id="playersB"></div>
-    <button class="btn" onclick="addPoint('B')">+1 Point</button>
-  </div>
+<h3>Players Alive: <span id="aliveB">7</span> / 7</h3>
+<div class="player-list">
+Player Names:<br>
+<input id="b1" value="B1"><br>
+<input id="b2" value="B2"><br>
+<input id="b3" value="B3"><br>
+<input id="b4" value="B4"><br>
+<input id="b5" value="B5"><br>
+<input id="b6" value="B6"><br>
+<input id="b7" value="B7"><br>
+</div>
 
+<button class="btn" onclick="outPlayerB()">OUT (-1)</button>
+<button class="btn" onclick="reviveB()">REVIVE (+1)</button>
 </div>
 
 </div>
 
 <script>
-// ---------------------------
-// PLAYER DATA
-// ---------------------------
-const teamA = Array(7).fill().map((_,i)=>({name:`A Player ${i+1}`, alive:true}));
-const teamB = Array(7).fill().map((_,i)=>({name:`B Player ${i+1}`, alive:true}));
 
-function renderPlayers() {
-  const A = document.getElementById("playersA");
-  const B = document.getElementById("playersB");
-  A.innerHTML = ""; B.innerHTML = "";
+// -----------------------------
+// TEAM NAMES UPDATE LIVE
+// -----------------------------
+document.getElementById("teamAName").oninput = () =>
+  document.getElementById("nameA").innerText = document.getElementById("teamAName").value;
 
-  teamA.forEach((p,i)=>{
-    A.innerHTML += `
-      <div class='player'>
-        <input value="${p.name}" onchange="teamA[${i}].name=this.value">
-        <span class="${p.alive?'alive':'out'}">${p.alive?'Alive':'Out'}</span>
-        <button onclick="toggleStatus('A',${i})">X</button>
-      </div>`;
-  });
+document.getElementById("teamBName").oninput = () =>
+  document.getElementById("nameB").innerText = document.getElementById("teamBName").value;
 
-  teamB.forEach((p,i)=>{
-    B.innerHTML += `
-      <div class='player'>
-        <input value="${p.name}" onchange="teamB[${i}].name=this.value">
-        <span class="${p.alive?'alive':'out'}">${p.alive?'Alive':'Out'}</span>
-        <button onclick="toggleStatus('B',${i})">X</button>
-      </div>`;
-  });
-
-  updateCounts();
-}
-
-function toggleStatus(team,i){
-  if(team==='A') teamA[i].alive = !teamA[i].alive;
-  else teamB[i].alive = !teamB[i].alive;
-  renderPlayers();
-}
-
-function updateCounts(){
-  let a = teamA.filter(p=>p.alive).length;
-  let b = teamB.filter(p=>p.alive).length;
-  document.getElementById("aliveA").innerText = a;
-  document.getElementById("outA").innerText = 7-a;
-  document.getElementById("aliveB").innerText = b;
-  document.getElementById("outB").innerText = 7-b;
-}
-
-// ---------------------------
-// SCORE SYSTEM
-// ---------------------------
-let scoreA=0, scoreB=0;
-
-function addPoint(team){
-  if(team==='A') scoreA++; else scoreB++;
-  document.getElementById("scoreA").innerText = scoreA;
-  document.getElementById("scoreB").innerText = scoreB;
-}
-
-// ---------------------------
+// -----------------------------
 // MATCH TIMER
-// ---------------------------
-let matchSeconds;
-let matchInt;
+// -----------------------------
+let matchTime = 0;
+let matchInterval;
 
 function startMatch() {
-  let mins = Number(document.getElementById("matchInput").value);
-  if(!matchSeconds) matchSeconds = mins * 60;
+    let min = parseInt(document.getElementById("matchTimeInput").value);
+    matchTime = min * 60;
 
-  matchInt = setInterval(()=>{
-    matchSeconds--;
-    updateMatch();
-    if(matchSeconds<=0) clearInterval(matchInt);
-  },1000);
+    clearInterval(matchInterval);
+    matchInterval = setInterval(() => {
+        if (matchTime <= 0) { clearInterval(matchInterval); return; }
+        matchTime--;
+        document.getElementById("matchTimer").innerText =
+            `${String(Math.floor(matchTime/60)).padStart(2,'0')}:${String(matchTime%60).padStart(2,'0')}`;
+    }, 1000);
 }
 
-function pauseMatch(){ clearInterval(matchInt); }
+// -----------------------------
+// RAID TIMER (FIXED 30 SEC)
+// -----------------------------
+let raidTime = 30;
+let raidInterval;
+let paused = false;
 
-function resetMatch(){
-  let mins = Number(document.getElementById("matchInput").value);
-  matchSeconds = mins * 60;
-  updateMatch();
-  pauseMatch();
+function startRaid() {
+    raidTime = 30;
+    document.getElementById("raidTimer").innerText = raidTime;
+    clearInterval(raidInterval);
+
+    raidInterval = setInterval(() => {
+        if (raidTime <= 0) { clearInterval(raidInterval); return; }
+        raidTime--;
+
+        // LAST 10 SEC PKL STYLE VOICE
+        if (raidTime <= 10 && raidTime > 0) {
+            let utter = new SpeechSynthesisUtterance(raidTime);
+            utter.volume = 1;
+            utter.rate = 1;
+            utter.pitch = 1;
+            speechSynthesis.speak(utter);
+        }
+
+        document.getElementById("raidTimer").innerText = raidTime;
+    }, 1000);
 }
 
-function updateMatch(){
-  let m = Math.floor(matchSeconds/60);
-  let s = matchSeconds%60;
-  document.getElementById("matchTime").innerText =
-    `${m}:${s<10?'0'+s:s}`;
+function pauseRaid() {
+    paused = true;
+    clearInterval(raidInterval);
 }
 
-// ---------------------------
-// RAID TIMER WITH LOUD SOUND
-// ---------------------------
-let raid = 30;
-let raidInt;
-
-const loudBeep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-loudBeep.volume = 1.0;
-
-function startRaid(){
-  raid = 30;
-  clearInterval(raidInt);
-
-  raidInt = setInterval(()=>{
-    raid--;
-    document.getElementById("raidTime").innerText = raid;
-
-    if(raid<=10 && raid>0){
-      loudBeep.currentTime = 0;
-      loudBeep.play();
-    }
-
-    if(raid<=0) clearInterval(raidInt);
-  },1000);
+function resumeRaid() {
+    if (!paused) return;
+    paused = false;
+    startRaid();
 }
 
-function resetRaid(){
-  clearInterval(raidInt);
-  raid = 30;
-  document.getElementById("raidTime").innerText = raid;
+// -----------------------------
+// SCORE SYSTEM
+// -----------------------------
+let scoreA = 0, scoreB = 0;
+
+function addPointA() {
+    scoreA++;
+    document.getElementById("scoreA").innerText = scoreA;
 }
 
-// ---------------------------
-function updateNames(){
-  document.getElementById("teamAName").value =
-    document.getElementById("teamAName").value.toUpperCase();
-
-  document.getElementById("teamBName").value =
-    document.getElementById("teamBName").value.toUpperCase();
+function addPointB() {
+    scoreB++;
+    document.getElementById("scoreB").innerText = scoreB;
 }
 
-// RENDER INITIAL PLAYERS
-renderPlayers();
+// -----------------------------
+// PLAYER MANAGEMENT (7 MAX)
+// -----------------------------
+let aliveA = 7, aliveB = 7;
+
+function outPlayerA() {
+    if (aliveA > 0) aliveA--;
+    document.getElementById("aliveA").innerText = aliveA;
+}
+
+function reviveA() {
+    if (aliveA < 7) aliveA++;
+    document.getElementById("aliveA").innerText = aliveA;
+}
+
+function outPlayerB() {
+    if (aliveB > 0) aliveB--;
+    document.getElementById("aliveB").innerText = aliveB;
+}
+
+function reviveB() {
+    if (aliveB < 7) aliveB++;
+    document.getElementById("aliveB").innerText = aliveB;
+}
+
 </script>
-
 </body>
 </html>
